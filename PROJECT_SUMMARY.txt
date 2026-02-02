@@ -419,3 +419,29 @@ Documentation: ~50,000 characters across 5 comprehensive guides
 Configuration: 5 configuration files with examples
 
 ================================================================================
+
+================================================================================
+SECURITY UPDATE (2026-02-02)
+================================================================================
+
+CRITICAL: Updated aiohttp dependency to fix 3 security vulnerabilities:
+
+1. ✅ FIXED: Zip Bomb Vulnerability (CVE - affects <= 3.13.2)
+   - Updated to: aiohttp>=3.13.3
+   - Severity: High
+   
+2. ✅ FIXED: Denial of Service (CVE - affects < 3.9.4)
+   - Updated to: aiohttp>=3.13.3
+   - Severity: High
+   
+3. ✅ FIXED: Directory Traversal (CVE - affects >= 1.0.5, < 3.9.2)
+   - Updated to: aiohttp>=3.13.3
+   - Severity: High
+
+PREVIOUS VERSION: aiohttp==3.9.1 (VULNERABLE)
+UPDATED VERSION: aiohttp>=3.13.3 (SECURE)
+
+All security vulnerabilities have been patched.
+See SECURITY.md for complete details.
+
+================================================================================

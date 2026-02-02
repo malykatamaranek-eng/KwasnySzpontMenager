@@ -1,5 +1,7 @@
 # KWASNY LOG MANAGER
 
+> **⚠️ Security Update (2026-02-02):** Updated aiohttp to >=3.13.3 to fix critical vulnerabilities. See [SECURITY.md](SECURITY.md) for details.
+
 Kompleksowy system zarządzania wieloma kontami z pełną automatyzacją, obsługą proxy, monitoringiem bezpieczeństwa i kalkulacją finansów.
 
 ## 🎯 Funkcje
