@@ -1,0 +1,8 @@
+# Example accounts list
+# Format: email:password or email:password:facebook_password
+# One account per line
+
+# Examples (replace with real accounts)
+user1@wp.pl:emailpass123
+user2@onet.pl:emailpass456:fbpass456
+user3@interia.pl:emailpass789

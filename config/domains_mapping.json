@@ -1,0 +1,17 @@
+{
+  "wp.pl": {
+    "login_url": "https://poczta.wp.pl/login/login.html"
+  },
+  "onet.pl": {
+    "login_url": "https://konto.onet.pl/signin"
+  },
+  "o2.pl": {
+    "login_url": "https://1login.wp.pl/zaloguj/"
+  },
+  "tlen.pl": {
+    "login_url": "https://1login.wp.pl/zaloguj/"
+  },
+  "interia.pl": {
+    "login_url": "https://konto.interia.pl/logowanie"
+  }
+}
