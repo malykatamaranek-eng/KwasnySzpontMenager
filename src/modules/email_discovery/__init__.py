@@ -1,0 +1,1 @@
+"""Email discovery module initialization."""
