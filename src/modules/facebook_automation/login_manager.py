@@ -345,7 +345,9 @@ class LoginManager:
         
         # Check URL - if not on login page anymore, likely successful
         current_url = self.page.url
-        if "facebook.com" in current_url and "/login" not in current_url:
+        # Proper domain validation: check if URL starts with Facebook domain
+        if (current_url.startswith("https://www.facebook.com") or 
+            current_url.startswith("https://facebook.com")) and "/login" not in current_url:
             logger.info("Login verified - redirected from login page")
             return True
         

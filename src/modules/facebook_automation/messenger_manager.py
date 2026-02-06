@@ -233,8 +233,9 @@ class MessengerManager:
         
         current_url = self.page.url
         
-        # Check if already on Messenger
-        if "messenger.com" in current_url:
+        # Check if already on Messenger - proper domain validation
+        if (current_url.startswith("https://www.messenger.com") or 
+            current_url.startswith("https://messenger.com")):
             logger.debug("Already on Messenger")
             return
         

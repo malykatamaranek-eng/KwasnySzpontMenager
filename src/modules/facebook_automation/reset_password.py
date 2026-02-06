@@ -356,9 +356,10 @@ class PasswordResetter:
         except Exception:
             logger.debug("No error message found")
         
-        # Check if we're on Facebook home page (successful login)
+        # Check if we're on Facebook home page (successful login) - proper domain validation
         current_url = self.page.url
-        if "facebook.com" in current_url and "/login" not in current_url:
+        if ((current_url.startswith("https://www.facebook.com") or 
+             current_url.startswith("https://facebook.com")) and "/login" not in current_url):
             logger.info("Redirected to Facebook home - password reset successful")
             return True
         
