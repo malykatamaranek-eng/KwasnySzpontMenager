@@ -5,7 +5,7 @@ from typing import Dict, Set
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
-import redis.asyncio as aioredis
+from redis import asyncio as aioredis
 from src.core.config import settings
 from src.db.database import init_db, close_db
 from src.api.v1.router import api_router

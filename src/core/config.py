@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     
     # Security
     ENCRYPTION_KEY: str = Field(
-        default="bXlzZWNyZXRrZXkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkw",
+        default="13BrCceUM75mWC3wway+TGU5qjjlCFXFvwU4UkRrd4Y=",
         description="AES-256-GCM encryption key (base64 encoded)"
     )
     JWT_SECRET: str = Field(

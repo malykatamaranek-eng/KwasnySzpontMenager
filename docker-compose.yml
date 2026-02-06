@@ -44,7 +44,7 @@ services:
     environment:
       DATABASE_URL: postgresql://admin:secret@postgres:5432/automation
       REDIS_URL: redis://redis:6379/0
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-bXlzZWNyZXRrZXkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkw}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-13BrCceUM75mWC3wway+TGU5qjjlCFXFvwU4UkRrd4Y=}
       JWT_SECRET: ${JWT_SECRET:-mysecretjwtsecretkey1234567890}
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
@@ -66,7 +66,7 @@ services:
     environment:
       DATABASE_URL: postgresql://admin:secret@postgres:5432/automation
       REDIS_URL: redis://redis:6379/0
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-bXlzZWNyZXRrZXkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkw}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-13BrCceUM75mWC3wway+TGU5qjjlCFXFvwU4UkRrd4Y=}
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       PLAYWRIGHT_HEADLESS: "true"
