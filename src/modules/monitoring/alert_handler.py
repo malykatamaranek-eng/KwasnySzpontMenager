@@ -5,7 +5,7 @@ sending notifications via webhooks and email, and logging.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import aiohttp
@@ -80,7 +80,7 @@ class AlertHandler:
                 "alert_type": alert.alert_type,
                 "alert_data": alert.alert_data,
                 "detected_at": alert.detected_at.isoformat(),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             # Send notifications
@@ -186,7 +186,7 @@ class AlertHandler:
         """
         try:
             log_entry = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "event": "security_alert",
                 "data": payload
             }
@@ -303,7 +303,7 @@ class AlertHandler:
                 "fb_email": account.fb_email,
                 "alert_count": alert_count,
                 "threshold": self.config.alert_threshold,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             # Send webhook notification

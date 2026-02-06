@@ -8,7 +8,7 @@ import asyncio
 import email
 import imaplib
 import socket
-from datetime import datetime
+from datetime import datetime, timezone
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from typing import Optional
@@ -267,7 +267,7 @@ class IMAPClient:
             if date_str:
                 email_date = parsedate_to_datetime(date_str)
             else:
-                email_date = datetime.utcnow()
+                email_date = datetime.now(timezone.utc)
             
             # Extract body
             body_text = ""
