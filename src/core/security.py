@@ -11,7 +11,7 @@ from typing import Optional
 
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from src.core.config import settings
 from src.core.exceptions import ValidationException
@@ -71,7 +71,7 @@ class EncryptionManager:
         """
         # Use app-specific salt for consistent key derivation
         app_salt = hashlib.sha256(b"facebook_automation_system_v1").digest()
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=app_salt,
@@ -178,7 +178,7 @@ class PasswordHasher:
         if iterations is None:
             iterations = PasswordHasher.DEFAULT_ITERATIONS
         
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
@@ -215,7 +215,7 @@ class PasswordHasher:
                 message=f"Invalid hashed password format: {str(e)}"
             )
         
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
