@@ -458,6 +458,50 @@ async def update_email_account(
         raise DatabaseException(f"Failed to update email account: {str(e)}")
 
 
+async def update_email_account_status(
+    db: AsyncSession,
+    account_id: int,
+    status: EmailAccountStatus,
+    session_data: Optional[dict] = None,
+) -> Optional[EmailAccount]:
+    """Update email account status and optionally session data.
+    
+    Args:
+        db: Database session.
+        account_id: Email account ID.
+        status: New status.
+        session_data: Optional session data to update.
+    
+    Returns:
+        Optional[EmailAccount]: Updated email account instance.
+    """
+    try:
+        email_account = await get_email_account(db, account_id)
+        if not email_account:
+            raise RecordNotFoundError("EmailAccount", account_id)
+        
+        email_account.status = status
+        email_account.last_validated = datetime.now(timezone.utc)
+        
+        if session_data is not None:
+            email_account.session_data = session_data
+        
+        await db.commit()
+        await db.refresh(email_account)
+        logger.info(
+            "Email account status updated",
+            email_account_id=account_id,
+            status=status.value
+        )
+        return email_account
+    except RecordNotFoundError:
+        raise
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logger.error("Failed to update email account status", account_id=account_id, error=str(e))
+        raise DatabaseException(f"Failed to update email account status: {str(e)}")
+
+
 async def delete_email_account(db: AsyncSession, email_account_id: int) -> bool:
     """Delete email account by ID.
     
@@ -605,6 +649,33 @@ async def list_facebook_accounts(
     except SQLAlchemyError as e:
         logger.error("Failed to list Facebook accounts", error=str(e))
         raise DatabaseException(f"Failed to list Facebook accounts: {str(e)}")
+
+
+async def get_facebook_accounts_by_status(
+    db: AsyncSession,
+    status: str,
+    limit: int = 100,
+) -> Sequence[FacebookAccount]:
+    """Get Facebook accounts filtered by status string.
+    
+    Args:
+        db: Database session.
+        status: Status string (logged_in, pending, secured, error).
+        limit: Maximum number of accounts to return.
+    
+    Returns:
+        Sequence[FacebookAccount]: List of Facebook account instances.
+    """
+    try:
+        # Convert string to enum
+        status_enum = FacebookAccountStatus(status)
+        return await list_facebook_accounts(db, limit=limit, status=status_enum)
+    except ValueError:
+        logger.error("Invalid status value", status=status)
+        return []
+    except SQLAlchemyError as e:
+        logger.error("Failed to get Facebook accounts by status", status=status, error=str(e))
+        raise DatabaseException(f"Failed to get Facebook accounts by status: {str(e)}")
 
 
 async def update_facebook_account(
@@ -1072,6 +1143,31 @@ async def get_unhandled_alerts(db: AsyncSession, account_id: int) -> Sequence[Se
         raise DatabaseException(f"Failed to get unhandled alerts: {str(e)}")
 
 
+async def get_unhandled_security_alerts(
+    db: AsyncSession,
+    account_id: Optional[int] = None
+) -> Sequence[SecurityAlert]:
+    """Get all unhandled security alerts, optionally filtered by account.
+    
+    Args:
+        db: Database session.
+        account_id: Optional account ID filter.
+    
+    Returns:
+        Sequence[SecurityAlert]: List of unhandled security alert instances.
+    """
+    try:
+        query = select(SecurityAlert).where(SecurityAlert.handled == False)
+        if account_id is not None:
+            query = query.where(SecurityAlert.account_id == account_id)
+        query = query.order_by(SecurityAlert.detected_at.asc())
+        result = await db.execute(query)
+        return result.scalars().all()
+    except SQLAlchemyError as e:
+        logger.error("Failed to get unhandled security alerts", account_id=account_id, error=str(e))
+        raise DatabaseException(f"Failed to get unhandled security alerts: {str(e)}")
+
+
 async def mark_alert_handled(
     db: AsyncSession,
     alert_id: int,
@@ -1107,6 +1203,22 @@ async def mark_alert_handled(
         await db.rollback()
         logger.error("Failed to mark alert as handled", alert_id=alert_id, error=str(e))
         raise DatabaseException(f"Failed to mark alert as handled: {str(e)}")
+
+
+async def mark_security_alert_handled(
+    db: AsyncSession,
+    alert_id: int,
+) -> Optional[SecurityAlert]:
+    """Alias for mark_alert_handled for consistency.
+    
+    Args:
+        db: Database session.
+        alert_id: Security alert ID.
+    
+    Returns:
+        Optional[SecurityAlert]: Updated security alert instance.
+    """
+    return await mark_alert_handled(db, alert_id)
 
 
 async def delete_security_alert(db: AsyncSession, alert_id: int) -> bool:
