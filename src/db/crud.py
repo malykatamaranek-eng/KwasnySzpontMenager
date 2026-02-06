@@ -1343,3 +1343,86 @@ async def cleanup_old_tasks(
         await db.rollback()
         logger.error("Failed to cleanup old tasks", error=str(e))
         raise DatabaseException(f"Failed to cleanup old tasks: {str(e)}")
+
+
+# ============================================================================
+# Facebook Cookie Management
+# ============================================================================
+
+async def get_facebook_account_cookies(
+    db: AsyncSession,
+    fb_account_id: int,
+) -> Optional[list[dict[str, Any]]]:
+    """Get cookies for a Facebook account.
+    
+    Args:
+        db: Database session.
+        fb_account_id: Facebook account ID.
+    
+    Returns:
+        Optional[list[dict[str, Any]]]: List of cookie dictionaries or None.
+    """
+    try:
+        fb_account = await get_facebook_account(db, fb_account_id)
+        if not fb_account:
+            return None
+        
+        # Cookies are stored as JSON in the cookies field
+        return fb_account.cookies if fb_account.cookies else None
+        
+    except SQLAlchemyError as e:
+        logger.error(
+            "Failed to get Facebook account cookies",
+            fb_account_id=fb_account_id,
+            error=str(e)
+        )
+        raise DatabaseException(f"Failed to get Facebook account cookies: {str(e)}")
+
+
+async def save_facebook_cookies(
+    db: AsyncSession,
+    fb_account_id: int,
+    cookies: list[dict[str, Any]],
+) -> Optional[FacebookAccount]:
+    """Save cookies for a Facebook account.
+    
+    Args:
+        db: Database session.
+        fb_account_id: Facebook account ID.
+        cookies: List of cookie dictionaries from browser.
+    
+    Returns:
+        Optional[FacebookAccount]: Updated Facebook account instance.
+    
+    Raises:
+        RecordNotFoundError: If Facebook account not found.
+        DatabaseException: If save fails.
+    """
+    try:
+        fb_account = await get_facebook_account(db, fb_account_id)
+        if not fb_account:
+            raise RecordNotFoundError("FacebookAccount", fb_account_id)
+        
+        fb_account.cookies = cookies
+        fb_account.last_login = datetime.now(timezone.utc)
+        
+        await db.commit()
+        await db.refresh(fb_account)
+        
+        logger.info(
+            "Facebook cookies saved",
+            fb_account_id=fb_account_id,
+            cookie_count=len(cookies)
+        )
+        return fb_account
+        
+    except RecordNotFoundError:
+        raise
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logger.error(
+            "Failed to save Facebook cookies",
+            fb_account_id=fb_account_id,
+            error=str(e)
+        )
+        raise DatabaseException(f"Failed to save Facebook cookies: {str(e)}")
