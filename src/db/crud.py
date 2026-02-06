@@ -4,7 +4,7 @@ This module provides async CRUD operations for all database models
 with comprehensive error handling, transaction management, and specialized queries.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Sequence
 
 from sqlalchemy import and_, delete, func, or_, select, update
@@ -248,7 +248,7 @@ async def update_proxy_stats(
         else:
             proxy.fail_count += 1
         
-        proxy.last_tested = datetime.utcnow()
+        proxy.last_tested = datetime.now(timezone.utc)
         if latency_ms is not None:
             proxy.latency_ms = latency_ms
         
@@ -895,7 +895,7 @@ async def add_task_log(
             task.logs = []
         
         task.logs.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             **log_entry
         })
         
@@ -1088,7 +1088,7 @@ async def mark_alert_handled(
             raise RecordNotFoundError("SecurityAlert", alert_id)
         
         alert.handled = True
-        alert.handled_at = datetime.utcnow()
+        alert.handled_at = datetime.now(timezone.utc)
         
         await db.commit()
         await db.refresh(alert)
@@ -1212,7 +1212,7 @@ async def cleanup_old_tasks(
         DatabaseException: If cleanup fails.
     """
     try:
-        cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
         result = await db.execute(
             delete(Task).where(Task.created_at < cutoff_date)
         )
@@ -1224,7 +1224,3 @@ async def cleanup_old_tasks(
         await db.rollback()
         logger.error("Failed to cleanup old tasks", error=str(e))
         raise DatabaseException(f"Failed to cleanup old tasks: {str(e)}")
-
-
-# Import for timedelta
-from datetime import timedelta
