@@ -6,7 +6,7 @@ configurations, authentication outcomes, and service endpoints.
 
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class IMAPConfig(BaseModel):
@@ -61,7 +61,7 @@ class LoginResult(BaseModel):
     cookies: Dict[str, str] = Field(default_factory=dict, description="Authentication cookies")
     error_message: Optional[str] = Field(default=None, description="Error details")
     provider: str = Field(..., description="Provider identifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Auth timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Auth timestamp")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Extra data")
     
     model_config = ConfigDict(frozen=False)
