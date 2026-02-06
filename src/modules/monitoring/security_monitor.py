@@ -5,7 +5,7 @@ detecting alerts, and storing them in the database.
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -92,7 +92,7 @@ class SecurityMonitor:
             await crud.update_facebook_account(
                 db=self.db,
                 account_id=account_id,
-                security_alerts_checked=datetime.utcnow()
+                security_alerts_checked=datetime.now(timezone.utc)
             )
             
             return alerts

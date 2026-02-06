@@ -17,6 +17,7 @@ from src.db import crud
 from src.db.models import EmailAccountStatus
 from src.modules.auth_validator.models import ValidationResult, ValidationStatus
 from src.modules.email_discovery.detector import EmailProviderDetector
+from src.modules.email_discovery.models import EmailCredentials
 from src.modules.proxy_manager.models import ProxyConfig
 
 logger = get_logger(__name__)
@@ -76,7 +77,7 @@ class AuthValidator:
                 attempts=1
             )
         
-        logger.debug("Provider detected", email=email, provider=provider.name)
+        logger.debug("Provider detected", email=email, provider=provider.provider_identifier)
         
         # Retry loop with exponential backoff
         for attempt in range(1, self.MAX_RETRIES + 1):
@@ -92,7 +93,8 @@ class AuthValidator:
                 result = await self._attempt_validation(
                     email=email,
                     password=password,
-                    provider_name=provider.name,
+                    provider_name=provider.provider_identifier,
+                    provider=provider,
                     proxy=proxy
                 )
                 
@@ -149,7 +151,7 @@ class AuthValidator:
                     result = ValidationResult(
                         status=ValidationStatus.NETWORK_ERROR,
                         email=email,
-                        provider=provider.name,
+                        provider=provider.provider_identifier,
                         error_message=str(e),
                         attempts=attempt
                     )
@@ -164,7 +166,7 @@ class AuthValidator:
         result = ValidationResult(
             status=ValidationStatus.NETWORK_ERROR,
             email=email,
-            provider=provider.name,
+            provider=provider.provider_identifier,
             error_message="Max retries exceeded",
             attempts=self.MAX_RETRIES
         )
@@ -176,6 +178,7 @@ class AuthValidator:
         email: str,
         password: str,
         provider_name: str,
+        provider: "BaseEmailProvider",
         proxy: Optional[ProxyConfig] = None
     ) -> ValidationResult:
         """Single validation attempt.
@@ -184,33 +187,22 @@ class AuthValidator:
             email: Email address.
             password: Email password.
             provider_name: Provider identifier.
+            provider: Provider instance.
             proxy: Optional proxy configuration.
         
         Returns:
             ValidationResult: Validation outcome.
         """
         try:
-            # Get provider instance
-            provider = self.detector.get_provider(provider_name)
-            if not provider:
-                return ValidationResult(
-                    status=ValidationStatus.PROVIDER_ERROR,
-                    email=email,
-                    provider=provider_name,
-                    error_message=f"Provider {provider_name} not available"
-                )
+            # Create credentials
+            credentials = EmailCredentials(
+                email_address=email,
+                password=password
+            )
             
-            # Convert proxy if provided
-            proxy_url = None
-            if proxy:
-                if proxy.username and proxy.password:
-                    proxy_url = f"{proxy.protocol}://{proxy.username}:{proxy.password}@{proxy.host}:{proxy.port}"
-                else:
-                    proxy_url = f"{proxy.protocol}://{proxy.host}:{proxy.port}"
-            
-            # Attempt login with timeout
+            # Attempt authentication with timeout
             login_result = await asyncio.wait_for(
-                provider.login(email, password, proxy=proxy_url),
+                provider.authenticate_user(credentials, proxy_cfg=proxy),
                 timeout=settings.email_imap_timeout
             )
             

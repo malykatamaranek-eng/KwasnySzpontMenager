@@ -4,7 +4,7 @@ This module defines data structures for security alerts, monitoring
 configuration, and alert handling.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -36,7 +36,7 @@ class SecurityAlertData(BaseModel):
     alert_type: AlertType = Field(..., description="Alert type")
     location: Optional[str] = Field(default=None, description="Geographic location")
     device: Optional[str] = Field(default=None, description="Device info")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Alert timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Alert timestamp")
     ip_address: Optional[str] = Field(default=None, description="IP address")
     details: dict = Field(default_factory=dict, description="Additional details")
     

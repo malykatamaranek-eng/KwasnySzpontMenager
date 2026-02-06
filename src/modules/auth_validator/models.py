@@ -3,7 +3,7 @@
 This module defines data structures for validation results and status tracking.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -39,7 +39,7 @@ class ValidationResult(BaseModel):
     session_data: Optional[dict] = Field(default=None, description="Session data")
     error_message: Optional[str] = Field(default=None, description="Error details")
     attempts: int = Field(default=1, ge=1, description="Attempt count")
-    validated_at: datetime = Field(default_factory=datetime.utcnow, description="Validation timestamp")
+    validated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Validation timestamp")
     
     class Config:
         """Pydantic model configuration."""
