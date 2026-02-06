@@ -145,7 +145,6 @@ async def _test_proxy_endpoint(
                     )
     
     except asyncio.TimeoutError:
-        latency_ms = int((time.time() - start_time) * 1000)
         error_msg = f"Connection timeout after {timeout}s"
         logger.debug(
             "Proxy connection timeout",

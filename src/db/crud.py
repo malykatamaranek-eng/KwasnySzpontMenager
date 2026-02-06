@@ -229,14 +229,21 @@ async def update_proxy_stats(
 ) -> Optional[Proxy]:
     """Update proxy statistics after test.
     
+    Updates success/fail counts and automatically sets the last_tested
+    timestamp to current UTC time.
+    
     Args:
         db: Database session.
         proxy_id: Proxy ID.
         success: Whether test was successful.
-        latency_ms: Optional latency measurement.
+        latency_ms: Optional latency measurement in milliseconds.
     
     Returns:
         Optional[Proxy]: Updated proxy instance.
+    
+    Note:
+        This function automatically updates the last_tested timestamp
+        to the current UTC time regardless of test outcome.
     """
     try:
         proxy = await get_proxy(db, proxy_id)
