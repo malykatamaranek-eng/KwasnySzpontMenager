@@ -8,6 +8,7 @@ This module handles Facebook login automation including:
 """
 
 import logging
+from datetime import datetime, timezone
 from typing import Optional
 
 from playwright.async_api import Browser, BrowserContext, Page
@@ -400,11 +401,7 @@ class LoginManager:
             return {
                 "user_id": user_id,
                 "url": self.page.url,
-                "timestamp": logger.handlers[0].formatter.formatTime(
-                    logger.makeRecord(
-                        logger.name, 0, "", 0, "", (), None
-                    )
-                ) if logger.handlers else None
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
